@@ -8,6 +8,12 @@ from flask import request
 from multiprocessing import Process, Pipe
 import ecdsa
 
+import json
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import TerminalFormatter
+
+
 from miner_config import MINER_ADDRESS, MINER_NODE_URL, PEER_NODES
 
 node = Flask(__name__)
@@ -130,12 +136,13 @@ def mine(a, blockchain, node_pending_transactions):
             mined_block = Block(new_block_index, new_block_timestamp, new_block_data, last_block_hash)
             BLOCKCHAIN.append(mined_block)
             # Let the client know this node mined a block
-            print(json.dumps({
+            json_str = json.dumps({
               "index": new_block_index,
               "timestamp": str(new_block_timestamp),
               "data": new_block_data,
               "hash": last_block_hash
-            }) + "\n")
+            }, indent=4, sort_keys=True)
+            print(highlight(json_str, JsonLexer(), TerminalFormatter()))
             a.send(BLOCKCHAIN)
             requests.get(MINER_NODE_URL + "/blocks?update=" + MINER_ADDRESS)
 

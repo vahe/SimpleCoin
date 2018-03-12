@@ -23,6 +23,10 @@ import time
 import base64
 import ecdsa
 
+import json
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import TerminalFormatter
 
 def wallet():
     response = None
@@ -85,8 +89,11 @@ def check_transactions():
     """Retrieve the entire blockchain. With this you can check your
     wallets balance. If the blockchain is to long, it may take some time to load.
     """
-    res = requests.get('http://localhost:5000/blocks')
-    print(res.text)
+    res = requests.get('http://localhost:5000/blocks').content.decode("utf-8")
+    json_object = json.loads(res)
+    json_str = json.dumps(json_object, indent=4, sort_keys=True)
+    print(highlight(json_str, JsonLexer(), TerminalFormatter()))
+    # print(res.text)
 
 
 def generate_ECDSA_keys():
